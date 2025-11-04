@@ -95,5 +95,9 @@ if 'Embarked' in df.columns:
     df['Embarked'] = df['Embarked'].astype('category')
 
 
-print("\n🔹 Data types after conversion:")
+print("\n Data types after conversion:")
 print(df.dtypes)
+
+# Save cleaned version
+df.to_csv("CSV_Files/cleaned_titanic.csv", index=False)
+print("\nCleaned dataset saved as cleaned_titanic.csv")
