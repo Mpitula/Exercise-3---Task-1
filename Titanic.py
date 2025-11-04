@@ -38,7 +38,7 @@ if 'Age' in df.columns:
 if 'Cabin' in df.columns:
     # drop Cabin column as it's sparse / not useful for this analysis
     df.drop('Cabin', axis=1, inplace=True)
-    print("\nCabin column has been dropped from the dataset")
+    print(f"\nMissing values in 'Cabin' column after it has been dropped: {df['Age'].isnull().sum()}")
 
 ## Remove duplicates
 
@@ -50,6 +50,10 @@ df.drop_duplicates(inplace=True)
 
 # Confirm
 print(f"\nNumber of duplicates remaining: {df.duplicated().sum()} ")
+
+# Remove columns that have the same value for all rows
+titanic_data = df.loc[:, df.nunique() > 1]
+
 
 
 # Create boxplot to visualize outliers (before outlier treatment)
