@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 ## Load the dataset
-df = pd.read_csv("train_and_test2.csv")
+df = pd.read_csv("CSV_Files/titanic.csv")
 
 # Display first few rows
 print(df.head())
@@ -29,15 +29,16 @@ else:
 if 'Age' in df.columns:
     if df['Age'].isnull().sum() > 0:
         median_age = df['Age'].median()
-        df['Age'].fillna(median_age, inplace=True)
+        # avoid chained-assignment / future warning by assigning the result back
+        df['Age'] = df['Age'].fillna(median_age)
         print("\nMissing values in 'Age' column after imputation:")
         print(f"Age: {df['Age'].isnull().sum()}")
 
 # For Cabin: drop the column
 if 'Cabin' in df.columns:
-    if df['Age'].isnull().sum() > 0:
-        df.drop('Cabin', axis=1, inplace=True)
-        print("\nCabin column has been dropped from the dataset")
+    # drop Cabin column as it's sparse / not useful for this analysis
+    df.drop('Cabin', axis=1, inplace=True)
+    print("\nCabin column has been dropped from the dataset")
 
 ## Remove duplicates
 
@@ -51,11 +52,17 @@ df.drop_duplicates(inplace=True)
 print(f"\nNumber of duplicates remaining: {df.duplicated().sum()} ")
 
 
-# Create boxplot to visualize outliers
-plt.boxplot(df['Fare'])
-plt.title("Boxplot of Fare before Outlier Treatment")
-plt.show()
-plt.savefig('Boxplot/my_boxplot1.png')
+# Create boxplot to visualize outliers (before outlier treatment)
+if 'Fare' in df.columns:
+    plt.figure()
+    plt.boxplot(df['Fare'].dropna())
+    plt.title("Boxplot of Fare before Outlier Treatment")
+    # save before show so the file contains the figure
+    plt.savefig('Boxplot/my_boxplot1.png')
+    plt.show()
+    plt.close()
+else:
+    print("Column 'Fare' not found — skipping initial boxplot")
 
 # Calculate IQR (Interquartile Range)
 Q1 = df['Fare'].quantile(0.25)
@@ -70,11 +77,16 @@ upper_bound = Q3 + 1.5 * IQR
 df = df[(df['Fare'] >= lower_bound) & (df['Fare'] <= upper_bound)]
 
 
-## Check boxplot again after fixing
-plt.boxplot(df['Fare'])
-plt.title("Boxplot of Fare after Outlier Treatment")
-plt.show()
-plt.savefig('Boxplot/my_boxplot2.png')
+# Check boxplot again after outlier treatment
+if 'Fare' in df.columns and not df['Fare'].dropna().empty:
+    plt.figure()
+    plt.boxplot(df['Fare'].dropna())
+    plt.title("Boxplot of Fare after Outlier Treatment")
+    plt.savefig('Boxplot/my_boxplot2.png')
+    plt.show()
+    plt.close()
+else:
+    print("Column 'Fare' not found or empty after outlier removal — skipping final boxplot")
 
 
 # Check data types
